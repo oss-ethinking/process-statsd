@@ -1,6 +1,7 @@
-import { memoryUsage, cpuUsage, uptime } from 'process';
+import { cpuUsage } from 'process';
 import * as lynx from 'lynx';
 import lynxExpress from 'lynx-express';
+import { usage } from './usage';
 
 type config = {
   interval?: number;
@@ -13,23 +14,20 @@ type config = {
 export class processStatsd {
   cpu: any;
   metrics: any;
+  startCpu: NodeJS.CpuUsage;
 
   run = (cfg: config) => {
     const { interval, server, port, prefix } = cfg
     this.metrics = new lynx(server ? server : 'localhost', port ? port : 8125, { prefix });
 
-    const startCpu = process.cpuUsage();
+    this.startCpu = cpuUsage();
 
     setInterval(() => {
-      const { rss, heapTotal, heapUsed } = memoryUsage()
-      const { system, user } = cpuUsage(startCpu);
-      const up = uptime() * 1000;
-      const percent = (system + user) / (up * 10);
-      // console.log(rss, heapTotal, heapUsed,  percent)
-      this.metrics.gauge(`${prefix}.usage`, percent.toFixed(2));
-      this.metrics.gauge(`${prefix}.heapUsed`, heapUsed);
-      this.metrics.gauge(`${prefix}.heapTotal`, heapTotal);
-      this.metrics.gauge(`${prefix}.rss`, rss);
+      const { rss, heapTotal, heapUsed, cpuUsed } = usage(this.startCpu)
+      this.metrics.gauge('usage', cpuUsed);
+      this.metrics.gauge('heapUsed', heapUsed);
+      this.metrics.gauge('heapTotal', heapTotal);
+      this.metrics.gauge('rss', rss);
     }, interval ? interval : 1000)
 
   }
@@ -37,4 +35,4 @@ export class processStatsd {
   lynxExpress = () => lynxExpress(this.metrics)
 }
 
-// (new processStatsd()).run({ prefix: 'foo' })
+(new processStatsd()).run({ prefix: 'foo' })
