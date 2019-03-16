@@ -16,12 +16,14 @@ export class processStatsd {
   metrics: any;
   startCpu: NodeJS.CpuUsage;
 
-  run = (cfg: config) => {
+  constructor(cfg: config) {
     const { interval, server, port, prefix } = cfg
     this.metrics = new lynx(server ? server : 'localhost', port ? port : 8125, { prefix });
-
     this.startCpu = cpuUsage();
+    this.startCapture(interval);
+  }
 
+  startCapture(interval) {
     setInterval(() => {
       const { rss, heapTotal, heapUsed, cpuUsed } = usage(this.startCpu)
       this.metrics.gauge('usage', cpuUsed);
@@ -29,10 +31,9 @@ export class processStatsd {
       this.metrics.gauge('heapTotal', heapTotal);
       this.metrics.gauge('rss', rss);
     }, interval ? interval : 1000)
-
   }
 
   lynxExpress = () => lynxExpress(this.metrics)
 }
 
-(new processStatsd()).run({ prefix: 'foo' })
+// new processStatsd({ prefix: 'foo' })
