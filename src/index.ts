@@ -1,6 +1,6 @@
 import { cpuUsage } from 'process';
 import * as lynx from 'lynx';
-import lynxExpress from 'lynx-express';
+import * as lynxExpress from 'lynx-express';
 import { usage } from './usage';
 
 type config = {
@@ -23,7 +23,7 @@ export class processStatsd {
     this.startCapture(interval);
   }
 
-  startCapture(interval) {
+  startCapture(interval: number | undefined) {
     setInterval(() => {
       const { rss, heapTotal, heapUsed, cpuUsed } = usage(this.startCpu)
       this.metrics.gauge('usage', cpuUsed);
@@ -36,4 +36,4 @@ export class processStatsd {
   lynxExpress = () => lynxExpress(this.metrics)
 }
 
-// new processStatsd({ prefix: 'foo' })
+new processStatsd({ prefix: 'foo' })

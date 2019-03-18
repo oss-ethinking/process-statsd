@@ -25,8 +25,7 @@ const config = {
   prefix: 'myProcess',
 
 }
-const stats = new processStatsd()
-stats.run(config)
+const stats = new processStatsd(config)
 
 // use express middleware
 const middleware = stats.lynxExpress()
