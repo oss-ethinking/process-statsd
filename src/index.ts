@@ -31,7 +31,7 @@ export class processStatsd {
       this.metrics.gauge('heapTotal', heapTotal);
       this.metrics.gauge('rss', rss);
       // console.log( rss, heapTotal, heapUsed, cpuUsed );
-    }, interval ? interval : 1000)
+    }, interval ? interval : 60000)
   }
 
   lynxExpress = () => lynxExpress(this.metrics)
