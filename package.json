@@ -1,6 +1,6 @@
 {
   "name": "process-statsd",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "send nodejs process metrics to graphite",
   "repository": {
     "type": "git",
